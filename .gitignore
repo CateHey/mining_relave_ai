@@ -32,6 +32,8 @@ next-env.d.ts
 
 # confidential source brief — do not publish
 *.pdf
+*.log
 server.log
+devserver.log
 
 .vercel
