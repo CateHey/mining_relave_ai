@@ -19,11 +19,26 @@ const MapView = dynamic(() => import("./MapView"), {
 export function MapPanel({
   markers,
   selectedId,
+  focusId,
+  focusTick,
+  onHover,
   height,
 }: {
   markers: MapMarker[];
   selectedId?: string;
+  focusId?: string;
+  focusTick?: number;
+  onHover?: (id: string | null) => void;
   height?: number;
 }) {
-  return <MapView markers={markers} selectedId={selectedId} height={height} />;
+  return (
+    <MapView
+      markers={markers}
+      selectedId={selectedId}
+      focusId={focusId}
+      focusTick={focusTick}
+      onHover={onHover}
+      height={height}
+    />
+  );
 }

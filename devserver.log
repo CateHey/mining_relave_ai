@@ -1,0 +1,56 @@
+
+> mining_relave_ai@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.19
+   - Local:        http://localhost:3000
+   - Network:      http://10.2.0.2:3000
+
+ ✓ Starting...
+ ✓ Ready in 2.8s
+ ○ Compiling / ...
+ ✓ Compiled / in 3.8s (739 modules)
+ GET / 200 in 4610ms
+ GET / 200 in 205ms
+ ✓ Compiled in 2.2s (294 modules)
+ ✓ Compiled in 176ms (294 modules)
+ ✓ Compiled in 200ms (294 modules)
+ ✓ Compiled in 224ms (294 modules)
+ ✓ Compiled in 693ms (294 modules)
+ ⨯ ./components/MapView.tsx
+Module parse failed: Shorthand property assignments are valid only in destructuring patterns (25:12)
+|             box / 2
+|         ],
+>         html='\n      <div class="relave-marker '.concat(active ? "is-active" : "", '">\n        <span class="relave-pulse ').concat(animated ? "is-animated" : "", '" style="background:').concat(color, '"></span>\n        <span class="relave-dot" style="width:').concat(size, "px;height:").concat(size, "px;background:").concat(color, ";box-shadow:0 0 ").concat(glow, "px ").concat(color, ", 0 0 4px ").concat(color, '"></span>\n      </div>')
+|     });
+| }
+
+Import trace for requested module:
+./components/MapView.tsx
+./components/MapPanel.tsx
+ ✓ Compiled in 199ms (294 modules)
+ ✓ Compiled in 182ms (294 modules)
+ ✓ Compiled in 227ms (294 modules)
+ ✓ Compiled in 164ms (294 modules)
+ ✓ Compiled in 186ms (294 modules)
+ ✓ Compiled in 104ms (294 modules)
+ ✓ Compiled in 83ms (294 modules)
+ ✓ Compiled in 215ms (294 modules)
+ ✓ Compiled in 142ms (294 modules)
+ ✓ Compiled in 73ms (294 modules)
+ ✓ Compiled in 189ms (294 modules)
+ ✓ Compiled in 103ms (294 modules)
+ ✓ Compiled in 199ms (294 modules)
+ ✓ Compiled in 165ms (294 modules)
+ ✓ Compiled in 129ms (294 modules)
+ ✓ Compiled in 154ms (294 modules)
+ ✓ Compiled in 129ms (294 modules)
+ ✓ Compiled in 145ms (294 modules)
+ ✓ Compiled in 115ms (294 modules)
+ ✓ Compiled in 111ms (294 modules)
+ ✓ Compiled in 129ms (294 modules)
+ ✓ Compiled in 96ms (294 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 781ms (711 modules)
+ GET / 200 in 1447ms
+ GET / 200 in 119ms

@@ -7,9 +7,9 @@ export const BAND_LABEL: Record<RiskBand, string> = {
 };
 
 export const BAND_COLOR: Record<RiskBand, string> = {
-  stable: "#2dd4a7",
-  elevated: "#f5b945",
-  critical: "#f5564a",
+  stable: "#19e6a3",
+  elevated: "#ffc233",
+  critical: "#ff4d5e",
 };
 
 export const ACTION_LABEL: Record<ActionType, string> = {
