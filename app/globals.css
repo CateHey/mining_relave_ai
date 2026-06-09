@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0a0e14;
+  --color-surface: #111722;
+  --color-surface-2: #161e2b;
+  --color-border: #233047;
+  --color-muted: #8b9bb4;
+  --color-text: #e6edf6;
+
+  --color-brand: #1f9d8f;
+  --color-brand-700: #157a6e;
+
+  --color-stable: #2dd4a7;
+  --color-elevated: #f5b945;
+  --color-critical: #f5564a;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Leaflet base — keep tiles dark-friendly and contained */
+.leaflet-container {
+  background: #0a0e14;
+  font-family: var(--font-sans);
+}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+.leaflet-control-attribution {
+  background: rgba(10, 14, 20, 0.7) !important;
+  color: #5c6b82 !important;
+}
+.leaflet-control-attribution a {
+  color: #7d8ca6 !important;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 6px;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.7); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
