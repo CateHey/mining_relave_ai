@@ -109,7 +109,7 @@ export default function MapView({
           position={[m.lat, m.lng]}
           icon={makeIcon(m.band, m.id === selectedId)}
           eventHandlers={{
-            click: () => router.push(`/facility/${m.id}`),
+            click: () => router.push(`/mine/${m.id}`),
             mouseover: () => onHover?.(m.id),
             mouseout: () => onHover?.(null),
           }}
