@@ -3,9 +3,9 @@ import "./globals.css";
 import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
-  title: "Relave AI — Tailings early warning",
+  title: "Relave AI — Mine ESG intelligence",
   description:
-    "Satellite-and-AI tailings-failure early warning for the mid-tier mines and regulators that radar can't reach. Built in Australia, ready for Peru.",
+    "Satellite-and-AI environmental & ESG monitoring for mines — vegetation, water, dust, land and ground, scored and explained for investors and regulators.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

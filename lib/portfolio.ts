@@ -1,75 +1,85 @@
-import type { Alert, Facility, RiskAssessment } from "./types";
-import { FACILITIES, getFacility, NOW } from "./facilities";
-import { getDeformationSeries } from "./deformation";
-import { assessRisk } from "./riskEngine";
+import type { Alert, MineSite, EsgAssessment, DimensionKey } from "./types";
+import { MINES, getMine, NOW } from "./mines";
+import { getIndicatorSeries } from "./indicators";
+import { assessEsg } from "./esgEngine";
 
-export interface FacilityWithRisk {
-  facility: Facility;
-  risk: RiskAssessment;
+export interface MineWithEsg {
+  mine: MineSite;
+  esg: EsgAssessment;
 }
 
-/** Assess every facility in the portfolio, ranked highest-risk first. */
-export function getPortfolio(): FacilityWithRisk[] {
-  return FACILITIES.map((facility) => ({
-    facility,
-    risk: assessRisk(facility, getDeformationSeries(facility.id)),
-  })).sort((a, b) => b.risk.score - a.risk.score);
+/** Assess every mine in the portfolio, ranked highest-impact first. */
+export function getPortfolio(): MineWithEsg[] {
+  return MINES.map((mine) => ({
+    mine,
+    esg: assessEsg(mine, getIndicatorSeries(mine.id)),
+  })).sort((a, b) => b.esg.score - a.esg.score);
 }
 
-export function getFacilityWithRisk(id: string): FacilityWithRisk | undefined {
-  const facility = getFacility(id);
-  if (!facility) return undefined;
-  return { facility, risk: assessRisk(facility, getDeformationSeries(id)) };
+export function getMineWithEsg(id: string): MineWithEsg | undefined {
+  const mine = getMine(id);
+  if (!mine) return undefined;
+  return { mine, esg: assessEsg(mine, getIndicatorSeries(id)) };
 }
 
 export interface PortfolioStats {
   total: number;
-  critical: number;
-  elevated: number;
-  stable: number;
-  midTierUnmonitored: number;
-  populationAtRisk: number;
+  high: number;
+  watch: number;
+  low: number;
+  improving: number;
+  midTier: number;
+  canopyLossHa: number;
   avgConfidence: number;
 }
 
-export function getPortfolioStats(rows: FacilityWithRisk[]): PortfolioStats {
-  const critical = rows.filter((r) => r.risk.band === "critical").length;
-  const elevated = rows.filter((r) => r.risk.band === "elevated").length;
-  const stable = rows.filter((r) => r.risk.band === "stable").length;
-  const populationAtRisk = rows
-    .filter((r) => r.risk.band !== "stable")
-    .reduce((a, r) => a + r.facility.populationAtRisk, 0);
-  const avgConfidence = rows.reduce((a, r) => a + r.risk.confidence, 0) / (rows.length || 1);
+export function getPortfolioStats(rows: MineWithEsg[]): PortfolioStats {
+  const high = rows.filter((r) => r.esg.band === "critical").length;
+  const watch = rows.filter((r) => r.esg.band === "elevated").length;
+  const low = rows.filter((r) => r.esg.band === "stable").length;
+  const improving = rows.filter((r) => r.esg.trend === "improving").length;
+  // Sum real cleared hectares from each series' latest point.
+  const canopyLossHa = rows.reduce((a, r) => {
+    const series = getIndicatorSeries(r.mine.id);
+    return a + series.points[series.points.length - 1].canopyLossHa;
+  }, 0);
+  const avgConfidence = rows.reduce((a, r) => a + r.esg.confidence, 0) / (rows.length || 1);
   return {
     total: rows.length,
-    critical,
-    elevated,
-    stable,
-    midTierUnmonitored: rows.filter((r) => r.facility.midTier).length,
-    populationAtRisk,
+    high,
+    watch,
+    low,
+    improving,
+    midTier: rows.filter((r) => r.mine.midTier).length,
+    canopyLossHa,
     avgConfidence: Math.round(avgConfidence * 100) / 100,
   };
 }
 
-/** Derive an alert feed from any facility currently above the stable band. */
+const DIM_TITLE: Record<DimensionKey, string> = {
+  vegetation: "Deforestation / vegetation loss detected",
+  water: "Downstream water turbidity rising",
+  air: "Elevated dust over the site",
+  land: "Rapid footprint expansion",
+  ground: "Ground subsidence above baseline",
+};
+
+/** Derive an alert feed from any mine currently above the low-impact band. */
 export function getAlerts(): Alert[] {
-  const rows = getPortfolio().filter((r) => r.risk.band !== "stable");
+  const rows = getPortfolio().filter((r) => r.esg.band !== "stable");
   const alerts: Alert[] = rows.map((r, i) => {
-    const daysAgo = r.risk.band === "critical" ? 1 + i : 4 + i * 3;
+    const top = [...r.esg.factors].sort((a, b) => b.score * b.weight - a.score * a.weight)[0];
+    const daysAgo = r.esg.band === "critical" ? 2 + i : 6 + i * 3;
     const date = new Date(NOW.getTime() - daysAgo * 86400000).toISOString().slice(0, 10);
     return {
-      id: `al-${r.facility.id}`,
-      facilityId: r.facility.id,
-      facilityName: r.facility.name,
+      id: `al-${r.mine.id}`,
+      mineId: r.mine.id,
+      mineName: r.mine.name,
       date,
-      band: r.risk.band,
-      title:
-        r.risk.band === "critical"
-          ? "Accelerating crest subsidence detected"
-          : "Elevated movement above baseline",
-      message: r.risk.explanation.split(".")[1]
-        ? r.risk.explanation.split(".").slice(0, 2).join(".") + "."
-        : r.risk.explanation,
+      band: r.esg.band,
+      dimension: top.dimension,
+      title: DIM_TITLE[top.dimension],
+      message: top.detail,
     };
   });
   return alerts.sort((a, b) => (a.date < b.date ? 1 : -1));

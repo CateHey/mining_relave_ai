@@ -7,23 +7,22 @@ import { Card } from "./ui";
 const NOW_ISO = "2026-06-09T09:30:00Z";
 
 const ACTIONS: { key: ActionType; label: string; desc: string; color: string }[] = [
-  { key: "inspect", label: "Inspect", desc: "Schedule a field inspection", color: "#f5b945" },
-  { key: "escalate", label: "Escalate", desc: "Notify the responsible engineer", color: "#f5564a" },
-  { key: "report", label: "Report", desc: "Log to the compliance record", color: "#2dd4a7" },
+  { key: "inspect", label: "Investigate", desc: "Open a field / data review", color: "#ffc233" },
+  { key: "escalate", label: "Remediate", desc: "Raise a remediation case", color: "#ff4d5e" },
+  { key: "report", label: "Disclose", desc: "Log to the ESG record", color: "#19e6a3" },
 ];
 
 export function ActionPanel({
-  facilityId,
-  facilityName,
+  mineId,
+  mineName,
   recommended,
-  band,
 }: {
-  facilityId: string;
-  facilityName: string;
+  mineId: string;
+  mineName: string;
   recommended: ActionType;
   band: RiskBand;
 }) {
-  const storageKey = `relave-audit:${facilityId}`;
+  const storageKey = `relave-audit:${mineId}`;
   const [trail, setTrail] = useState<AuditEntry[]>([]);
   const [monitoring, setMonitoring] = useState(true);
   const [flash, setFlash] = useState<string | null>(null);
@@ -48,18 +47,18 @@ export function ActionPanel({
 
   function record(action: ActionType) {
     const labelMap: Record<ActionType, string> = {
-      inspect: "Field inspection scheduled",
-      escalate: "Escalated to geotechnical engineer",
-      report: "Logged to compliance record",
+      inspect: "Investigation opened",
+      escalate: "Remediation case raised",
+      report: "Logged to ESG disclosure record",
       monitor: "Monitoring updated",
     };
     const entry: AuditEntry = {
       timestamp: new Date().toISOString(),
-      facilityId,
-      facilityName,
+      mineId,
+      mineName,
       action: action.toUpperCase(),
       detail: labelMap[action],
-      actor: "demo.operator@relave.ai",
+      actor: "demo.analyst@relave.ai",
     };
     persist([entry, ...trail]);
     setFlash(`${labelMap[action]} — written to the audit trail.`);
@@ -67,28 +66,28 @@ export function ActionPanel({
   }
 
   function exportTrail() {
-    const header = "timestamp,facility_id,facility_name,action,detail,actor\n";
+    const header = "timestamp,mine_id,mine_name,action,detail,actor\n";
     const seed: AuditEntry[] =
       trail.length > 0
         ? trail
         : [
             {
               timestamp: NOW_ISO,
-              facilityId,
-              facilityName,
+              mineId,
+              mineName,
               action: recommended.toUpperCase(),
-              detail: "Initial AI risk assessment recorded",
+              detail: "Initial AI ESG assessment recorded",
               actor: "relave-ai/model",
             },
           ];
     const rows = seed
-      .map((e) => `${e.timestamp},${e.facilityId},"${e.facilityName}",${e.action},"${e.detail}",${e.actor}`)
+      .map((e) => `${e.timestamp},${e.mineId},"${e.mineName}",${e.action},"${e.detail}",${e.actor}`)
       .join("\n");
     const blob = new Blob([header + rows], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `relave-audit-${facilityId}.csv`;
+    a.download = `relave-esg-${mineId}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -99,7 +98,7 @@ export function ActionPanel({
         <span className="text-xs font-semibold uppercase tracking-wide text-brand">Next step</span>
         <p className="mt-0.5 text-xs text-muted">
           Every review ends in one concrete action. Recommended:{" "}
-          <span className="font-semibold text-text">{recommended}</span>.
+          <span className="font-semibold text-text">{ACTIONS.find((a) => a.key === recommended)?.label}</span>.
         </p>
       </div>
 
@@ -111,10 +110,7 @@ export function ActionPanel({
               key={a.key}
               onClick={() => record(a.key)}
               className="group flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-colors hover:bg-surface-2"
-              style={{
-                borderColor: isRec ? a.color : "#233047",
-                background: isRec ? `${a.color}12` : "transparent",
-              }}
+              style={{ borderColor: isRec ? a.color : "#233047", background: isRec ? `${a.color}12` : "transparent" }}
             >
               <span className="text-sm font-semibold" style={{ color: a.color }}>
                 {a.label}
@@ -140,13 +136,11 @@ export function ActionPanel({
           onClick={exportTrail}
           className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-text hover:bg-surface-2"
         >
-          Export audit trail (CSV)
+          Export ESG evidence (CSV)
         </button>
       </div>
 
-      {flash && (
-        <div className="border-t border-border bg-surface-2 px-5 py-2 text-xs text-stable">{flash}</div>
-      )}
+      {flash && <div className="border-t border-border bg-surface-2 px-5 py-2 text-xs text-stable">{flash}</div>}
 
       {trail.length > 0 && (
         <div className="border-t border-border px-5 py-3">

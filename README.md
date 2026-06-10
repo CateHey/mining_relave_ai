@@ -1,22 +1,32 @@
 # Relave AI
 
-**Satellite-and-AI tailings-failure early warning for the mid-tier mines and regulators that radar can't reach. Built in Australia, ready for Peru.**
+**Satellite-and-AI environmental & ESG intelligence for mines.**
 
-A tailings dam failure can bury a town in minutes — and the technology that predicts it is locked behind six-figure on-site hardware only the biggest mines can buy. Relave AI reads **free satellite radar (InSAR)** with AI to give every mine and regulator an early warning of **which dam is moving, why, and how urgently** — guidance for engineers, not a replacement for them.
+Mines face growing pressure from investors, regulators and communities to prove their real environmental footprint — but credible monitoring still means costly site surveys and consultants. Relave AI reads **free satellite data with AI** to score every mine on its environmental impact and explain each read in plain language, with the evidence behind it.
 
-This repo is a working prototype of the core flow: an operator or regulator selects a tailings storage facility (TSF) on a map; Relave AI returns its deformation history, an explainable AI risk read with a confidence score, and one concrete next step — **inspect, escalate, or report.**
+An analyst selects a mine on a map; Relave AI returns its 24-month environmental history, an explainable **ESG impact score** with a confidence level, a breakdown across five dimensions, and one concrete next step — **investigate, remediate, or disclose.**
 
 ---
 
 ## What's in the demo
 
-- **Portfolio risk screen** (`/`) — every facility on a map and ranked in a table by failure risk, colour-coded by band (stable / elevated / critical), with portfolio-wide stats (people at risk, critical/elevated counts).
-- **Facility detail** (`/facility/[id]`) — cumulative InSAR line-of-sight displacement chart with a rainfall overlay, a synthetic deformation field (which part of the wall is moving), the **AI Risk Read** (score, confidence, velocity, acceleration, plain-language explanation, contributing factors), and an action panel that writes to an **audit trail you can export as CSV** for the regulator.
-- **Alerts** (`/alerts`) — always-on feed of facilities that have moved above baseline.
-- **How it works** (`/about`) — the tiered free/premium data strategy and the "inform, don't certify" positioning.
-- **Assessment API** (`/api/risk` and `/api/risk?facility=<id>`) — the JSON seam a real client, regulator portal or insurer feed integrates against.
+- **Mine ESG impact screen** (`/`) — every mine on a map and ranked by environmental impact, colour-coded (low / watch / high), with portfolio stats (high-impact count, vegetation cleared, improving sites). Interactive: filter by region & impact, hover to highlight on the map, fly-to.
+- **Mine detail** (`/mine/[id]`) — a 24-month indicator chart (NDVI vegetation, water turbidity, dust), a synthetic land-cover change map, the **AI ESG Read** (composite score, confidence, trend, plain-language explanation, and a 5-dimension breakdown), and an action panel that writes to an **audit trail you can export as CSV** for ESG disclosure.
+- **Alerts** (`/alerts`) — always-on feed of mines whose impact has risen above baseline, tagged by dimension.
+- **How it works** (`/about`) — the free-satellite → ESG-signal mapping and the "inform, don't audit" positioning.
+- **Assessment API** (`/api/esg` and `/api/esg?mine=<id>`) — the JSON seam an investor portal, regulator feed or ESG-reporting suite integrates against.
 
-The demo ships with 10 illustrative facilities across Australia and Peru, including ground-truth historical-failure cases (Brumadinho / Córrego do Feijão, Cobriza) used as known-positive precursor signatures.
+The five ESG dimensions, each from free satellite data:
+
+| Dimension | Source (free) | Detects |
+| --- | --- | --- |
+| 🌿 Vegetation | Sentinel-2 NDVI · ESA WorldCover | Deforestation, clearing, revegetation |
+| 💧 Water | Sentinel-2 multispectral | Downstream turbidity / discolouration |
+| 🌫️ Air & dust | Sentinel-5P aerosol | Dust & emissions over the site |
+| ⛰️ Land | Sentinel-2 · WorldCover change | Growth of the disturbed footprint |
+| 📐 Ground | Sentinel-1 InSAR | Millimetre-scale subsidence |
+
+The demo ships with 10 illustrative mines across Australia, Peru, Brazil and Chile — including an Amazon alluvial-gold deforestation case (high impact) and a nickel rehabilitation site (low impact, improving).
 
 ---
 
@@ -26,22 +36,17 @@ The data and model layers are decoupled behind typed interfaces, so the demo's s
 
 | Layer | Demo (this repo) | Production swap |
 | --- | --- | --- |
-| Deformation time series | `lib/deformation.ts` — deterministic synthetic InSAR | Processed Sentinel-1 / ICEYE time-series store (SNAP / EZ-InSAR pipeline) |
-| Risk model | `lib/riskEngine.ts` — transparent, rule-based, every input exposed as an auditable factor | A learned failure-precursor model + optional Claude-generated narrative, same `RiskAssessment` contract |
-| Context layers | seasonal rainfall + seismic in the generator | Copernicus DEM, ERA5 rainfall, USGS seismic feeds |
+| Indicator time series | `lib/indicators.ts` — deterministic synthetic | Real Sentinel-2 / Sentinel-1 / Sentinel-5P monthly composites |
+| ESG model | `lib/esgEngine.ts` — transparent, every input an auditable factor | A learned model + optional Claude-generated narrative, same `EsgAssessment` contract |
 
 Everything is deterministic (seeded PRNG) so charts and assessments are reproducible across server and client — no hydration drift.
-
-**Tiered data strategy = tiered product:** free Sentinel-1 C-band powers continuous portfolio-wide screening at near-zero marginal cost; paid high-res tasking (ICEYE / Capella) is triggered only when the base layer flags movement.
-
----
 
 ## Tech stack
 
 - **Next.js 15** (App Router) + **React 19** + **TypeScript**
 - **Tailwind CSS v4**
 - **react-leaflet** + CARTO dark tiles for the map (no API key required)
-- **Recharts** for the deformation/rainfall chart
+- **Recharts** for the indicator chart
 
 ## Run locally
 
@@ -56,14 +61,8 @@ npm run build && npm start   # production build
 
 ## Deploy to Vercel
 
-This is a standard Next.js app — zero config required.
-
-1. Push to GitHub (this repo: `CateHey/mining_relave_ai`).
-2. Import the repo at [vercel.com/new](https://vercel.com/new).
-3. Vercel auto-detects Next.js — accept the defaults and deploy.
-
-No environment variables are needed for the demo. (When wiring a real model, add `ANTHROPIC_API_KEY` and the SAR data store credentials as Vercel env vars.)
+Standard Next.js app — zero config. Push to GitHub, import at [vercel.com/new](https://vercel.com/new), accept the auto-detected defaults, deploy. No environment variables needed for the demo.
 
 ---
 
-> **Inform, don't certify.** Relave AI surfaces risk and evidence and defers the formal sign-off to the licensed geotechnical engineer. All figures in this prototype are synthetic and illustrative; the model is decision support and does not constitute geotechnical certification.
+> **Inform, don't audit.** Relave AI surfaces environmental impact and evidence and defers the formal sign-off to the environmental professional. All figures in this prototype are synthetic and illustrative; the model is decision support for ESG disclosure and is not a regulated environmental audit.

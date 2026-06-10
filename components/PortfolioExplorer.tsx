@@ -14,16 +14,16 @@ export interface ExplorerRow {
   operator: string;
   region: string;
   country: string;
-  status: string;
-  damType: string;
+  commodity: string;
   lat: number;
   lng: number;
   band: RiskBand;
   score: number;
-  velocityMmYr: number;
   confidence: number;
   recommendedAction: "monitor" | "inspect" | "escalate" | "report";
-  historicalFailure?: string;
+  trend: "improving" | "worsening" | "steady";
+  topDimension: string;
+  esgNote?: string;
 }
 
 type CountryFilter = "all" | "Australia" | "Peru" | "Other";
@@ -119,7 +119,7 @@ export function PortfolioExplorer({ rows }: { rows: ExplorerRow[] }) {
             ))}
           </div>
           <span>
-            Showing {filtered.length} of {rows.length} facilities
+            Showing {filtered.length} of {rows.length} mines
           </span>
         </div>
       </Card>
@@ -127,7 +127,7 @@ export function PortfolioExplorer({ rows }: { rows: ExplorerRow[] }) {
       {/* Interactive list */}
       <Card className="flex flex-col overflow-hidden">
         <div className="border-b border-border px-4 py-3">
-          <h2 className="text-sm font-semibold">Ranked by failure risk</h2>
+          <h2 className="text-sm font-semibold">Ranked by environmental impact</h2>
           <p className="mt-0.5 text-xs text-muted">
             Hover a row to highlight it on the map · click <span className="text-brand">◎</span> to fly there · click the name to open.
           </p>
@@ -150,23 +150,25 @@ export function PortfolioExplorer({ rows }: { rows: ExplorerRow[] }) {
                 >
                   ◎
                 </button>
-                <Link href={`/facility/${r.id}`} className="min-w-0 flex-1">
+                <Link href={`/mine/${r.id}`} className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span
                       className="h-2 w-2 flex-none rounded-full"
                       style={{ background: BAND_COLOR[r.band], boxShadow: `0 0 6px ${BAND_COLOR[r.band]}` }}
                     />
                     <span className="truncate text-sm font-medium text-text group-hover:text-brand">{r.name}</span>
-                    {r.historicalFailure && (
-                      <span className="flex-none rounded bg-surface-2 px-1.5 py-0.5 text-[10px] text-muted">gt</span>
-                    )}
-                  </div>
-                  <div className="mt-0.5 flex items-center gap-2 pl-4 text-[11px] text-muted">
-                    <span className="truncate">{r.region}, {r.country}</span>
-                    <span>·</span>
-                    <span className="tabular-nums" style={{ color: r.velocityMmYr < -25 ? BAND_COLOR.critical : r.velocityMmYr < -10 ? BAND_COLOR.elevated : undefined }}>
-                      {r.velocityMmYr} mm/yr
+                    <span
+                      className="flex-none text-xs"
+                      title={r.trend}
+                      style={{ color: r.trend === "worsening" ? BAND_COLOR.critical : r.trend === "improving" ? BAND_COLOR.stable : "#8b9bb4" }}
+                    >
+                      {r.trend === "worsening" ? "↑" : r.trend === "improving" ? "↓" : "→"}
                     </span>
+                  </div>
+                  <div className="mt-0.5 flex items-center gap-1.5 pl-4 text-[11px] text-muted">
+                    <span className="truncate">{r.commodity} · {r.region}, {r.country}</span>
+                    <span>·</span>
+                    <span className="truncate text-text/70">{r.topDimension}</span>
                   </div>
                 </Link>
                 <div className="flex flex-none flex-col items-end gap-1">
@@ -182,7 +184,7 @@ export function PortfolioExplorer({ rows }: { rows: ExplorerRow[] }) {
             );
           })}
           {filtered.length === 0 && (
-            <div className="px-4 py-10 text-center text-sm text-muted">No facilities match these filters.</div>
+            <div className="px-4 py-10 text-center text-sm text-muted">No mines match these filters.</div>
           )}
         </div>
       </Card>

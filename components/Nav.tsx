@@ -21,7 +21,7 @@ export function Nav() {
               Relave<span className="text-brand"> AI</span>
             </div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-muted">
-              Tailings early warning
+              Mine ESG intelligence
             </div>
           </div>
         </Link>
@@ -45,7 +45,7 @@ export function Nav() {
 
         <div className="ml-auto hidden items-center gap-2 text-xs text-muted sm:flex">
           <span className="inline-flex h-1.5 w-1.5 rounded-full bg-stable" />
-          Sentinel-1 feed live
+          Sentinel-2 · S1 · S5P live
         </div>
       </div>
     </header>
